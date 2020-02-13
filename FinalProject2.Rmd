@@ -1,0 +1,132 @@
+---
+title: "FinalProject2"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+College<- read.csv("/Users/alekseifurlong/Documents/Final_Exam_dataset/College.csv")
+library("dplyr")
+library("corrplot")
+library("ggplot2")
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r echo = TRUE}
+#Name: Aleksei Furlong
+#ID:2297345
+#Assignment: Final Project
+```
+
+
+##! Question 1
+
+
+```{r echo = TRUE}
+College2 <- na.omit(College)
+sum(is.na(College))
+```
+
+
+##! Question 2
+
+
+```{r echo = TRUE}
+sum(College2$Apps)
+sum(College2$Enroll)
+```
+
+
+##! Question 3
+
+
+```{r echo = TRUE}
+College2$costWT =  College2$Room.Board+ College2$Books+ College2$Personal
+mean(College2$costWT) 
+```
+
+
+##! Question 4
+
+
+```{r echo = TRUE}
+mean(College2$Outstate)
+College2$Instate= College2$Outstate * 0.43
+mean(College2$Instate)
+barplot(c(mean(College2$Outstate),mean(College2$Instate)), col = c("blue", "green"), main = "Outstate vs Instate",xlab = "Outstate(Blue) vs Instate(Green)",ylab = "Price $")
+```
+
+
+##! Question 5
+
+
+```{r echo = TRUE}
+CollegePrivate = College2 %>% select_all() %>% filter(Private == "Yes")
+CollegePublic = College2 %>% select_all() %>% filter(Private == "No")
+mean(CollegePrivate$Outstate)
+mean(CollegePrivate$Instate)
+mean(CollegePublic$Outstate)
+mean(CollegePublic$Instate)
+barplot(c(mean(CollegePrivate$Outstate),mean(CollegePrivate$Instate),mean(CollegePublic$Outstate),mean(CollegePublic$Instate)), col = c("blue", "red","blue","red"), main = "Private vs Public",xlab = "Outstate(Blue) Instate(Red)",ylab = "Price $",sub = "Private (left) vs Public (right)")
+```
+
+
+##! Question 6
+
+
+```{r echo = TRUE}
+CollegeMatrix <- College2[,3:20]
+CollegeMatrix <-cor(CollegeMatrix)
+col <- colorRampPalette(c("white","black"))(20)
+corrplot(CollegeMatrix,method = "color",order = "hclust", col = col, bg = "white", outline = "white", t1.col = "black", t1.srt = 45)
+```
+
+
+##! Question 7
+
+
+```{r echo = TRUE}
+College2$TotalEnrollment = College2$F.Undergrad + College2$P.Undergrad
+College2$EnrollmentPercentage = College2$F.Undergrad/College2$TotalEnrollment
+sum(College2$EnrollmentPercentage >= 0.9)
+```
+
+
+##! Question 8
+
+
+```{r echo = TRUE}
+College2$AcceptanceRate = College2$Accept/College2$Apps
+CollegeGreater = College2 %>% select_all() %>% filter(College2$EnrollmentPercentage >= 0.9)
+CollegeLess = College2 %>% select_all() %>% filter(College2$EnrollmentPercentage <= 0.9)
+mean(CollegeGreater$AcceptanceRate)
+mean(CollegeLess$AcceptanceRate)
+# acceptance rate of colleges with less than 90% full time enrollment is LOWER
+```
+
+
+##! Question 9 
+
+
+```{r echo = TRUE}
+College2$College = grepl("College",College2$Name)
+College2Collegename = College2 %>% select_all() %>% filter(College2$College == "TRUE")
+College2Universityname = College2 %>% select_all() %>% filter(College2$College == "FALSE")
+mean(College2Collegename$AcceptanceRate)-mean(College2Universityname$AcceptanceRate)
+# difference is 2.19%
+```
+
+
+##! Question 10
+
+
+```{r echo = TRUE}
+ggplot(data = College2,aes(x=College2$perc.alumni,y=College2$Grad.Rate))+geom_smooth()+geom_point()
+```
